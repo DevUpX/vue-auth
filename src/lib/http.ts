@@ -29,15 +29,16 @@ export default class AuthVueHttp {
         }
         const nextUrls = this.router.router.currentRoute.query.nextUrl;
         const nextUrl = Array.isArray(nextUrls) ? nextUrls[0] : nextUrls;
-        const { method, url, redirect, fetchUser, fetchData } = this.options.loginData;
-        return this.http({
+        const { method, url, redirect, fetchUser } = this.options.loginData;
+        const promise = this.http({
             method,
             url,
             data: loginInfo,
-        }).then(async (response: AxiosResponse) => {
+        });
+        promise.then(async (response: AxiosResponse) => {
             this.extractToken(response);
             this.startIntervals();
-            if (this.options.loginData?.fetchUser) {
+            if (fetchUser) {
                 await this.fetchData();
             }
             await this.router.afterLogin(redirect || nextUrl);
@@ -45,6 +46,7 @@ export default class AuthVueHttp {
         }).catch((error: any) => {
             console.warn('[vue-auth] Login error', error.message);
         });
+        return promise;
     }
 
     public register(registerInfo: VueAuthRegister) {
@@ -54,15 +56,16 @@ export default class AuthVueHttp {
         }
         const nextUrls = this.router.router.currentRoute.query.nextUrl;
         const nextUrl = Array.isArray(nextUrls) ? nextUrls[0] : nextUrls;
-        const { method, url, redirect, fetchUser, fetchData } = this.options.registerData;
-        return this.http({
+        const { method, url, redirect, fetchUser } = this.options.registerData;
+        const promise = this.http({
             method,
             url,
             data: registerInfo,
-        }).then(async (response: AxiosResponse) => {
+        });
+        promise.then(async (response: AxiosResponse) => {
             this.extractToken(response);
             this.startIntervals();
-            if (this.options.registerData?.fetchUser) {
+            if (fetchUser) {
                 await this.fetchData();
             }
             await this.router.afterLogin(redirect || nextUrl);
@@ -71,6 +74,7 @@ export default class AuthVueHttp {
         .catch((error: any) => {
             console.warn('[vue-auth] Register error', error.message);
         });
+        return promise;
     }
 
     public logout(forceRedirect = false) {
@@ -158,6 +162,7 @@ export default class AuthVueHttp {
                     .forEach((head) => {
                         const value: string = request.headers[head];
                         if (value
+                            && typeof value === 'string'
                             && this.options.headerTokenReplace
                             && value.includes(this.options.headerTokenReplace)) {
                             request.headers[head] = value.replace(this.options.headerTokenReplace, this.storeManager.getAccessToken());
