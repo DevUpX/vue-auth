@@ -1,0 +1,79 @@
+{
+  "name": "@devupx/vue-auth",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "author": {
+    "email": "lat9274@gmail.com",
+    "name": "lat1992",
+    "url": "https://github.com/devupx"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devupx/vue-auth.git"
+  },
+  "homepage": "https://github.com/devupx/vue-auth",
+  "main": "dist/vue-auth.common.js",
+  "module": "dist/vue-auth.esm.js",
+  "unpkg": "dist/vue-auth.umd.min.js",
+  "files": [
+    "dist/vue-auth.common.js",
+    "dist/vue-auth.umd.min.js",
+    "dist/vue-auth.umd.js",
+    "dist/vue-auth.esm.js",
+    "src",
+    "types"
+  ],
+  "dependencies": {
+    "vue-router": "^3.5.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.4.6",
+    "@vue/cli-plugin-eslint": "~4.4.6",
+    "@vue/cli-plugin-typescript": "~4.4.6",
+    "@vue/cli-plugin-vuex": "~4.4.6",
+    "@vue/cli-service": "~4.4.6",
+    "axios": "^0.21.1",
+    "babel-eslint": "^10.1.0",
+    "core-js": "^3.6.5",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.5",
+    "vue": "^2.6.11",
+    "vue-cli-plugin-p11n": "^0.4.0",
+    "vue-template-compiler": "^2.6.11",
+    "vuex": "^3.6.2"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "keywords": [
+    "vue2",
+    "auth",
+    "authorization",
+    "authentication"
+  ],
+  "types": "types/index.d.ts",
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "license": "MIT"
+}

@@ -1,15 +1,24 @@
 # vue-auth
 
-This is a plugin for vue 2.0, to manage auth by tokens.
+## Project setup
+```
+npm install
+```
 
-## Features
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
 
-Handle refresh with refresh_token
+### Compiles and minifies for production
+```
+npm run build
+```
 
-Fretch user info
+### Lints and fixes files
+```
+npm run lint
+```
 
-Use sessionStorage for access_token
-
-Use localStorage for refresh_token
-
-No cookieStorage used
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
