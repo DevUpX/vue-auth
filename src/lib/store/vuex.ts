@@ -57,10 +57,10 @@ export default class StoreVuex extends VueAuthStore {
                 user: this.options.Vue.$data.user,
             } as AuthVuexState,
             mutations: {
-                ACTION_SET_ACCESS_TOKEN: (state: AuthVuexState, token: string) => {
+                SET_ACCESS_TOKEN: (state: AuthVuexState, token: string) => {
                     state.access_token = token;
                 },
-                ACTION_SET_REFRESH_TOKEN: (state: AuthVuexState, token: string) => {
+                SET_REFRESH_TOKEN: (state: AuthVuexState, token: string) => {
                     state.refresh_token = token;
                 },
                 SET_USER: (state: AuthVuexState, user: AuthUser) => {
