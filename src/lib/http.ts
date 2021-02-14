@@ -20,6 +20,7 @@ export default class AuthVueHttp {
         }
         this.http = Vue.axios as AxiosInstance;
         this.configureHttp();
+        this.loginWithToken();
     }
 
     public login(loginInfo: VueAuthLogin) {
@@ -34,6 +35,37 @@ export default class AuthVueHttp {
             method,
             url,
             data: loginInfo,
+        });
+        promise.then(async (response: AxiosResponse) => {
+            this.extractToken(response);
+            this.startIntervals();
+            if (fetchUser) {
+                await this.fetchData();
+            }
+            await this.router.afterLogin(redirect || nextUrl);
+            return response;
+        }).catch((error: any) => {
+            console.warn('[vue-auth] Login error', error.message);
+        });
+        return promise;
+    }
+
+    public loginWithToken() {
+        if (!this.options.refreshData || !this.options.loginData) {
+            console.warn('[vue-auth] Login not configured, use "loginData" and "refreshData" option');
+            return Promise.reject(false);
+        }
+        if (!this.storeManager.getRefreshToken()) {
+            return;
+        }
+        const nextUrls = this.router.router.currentRoute.query.nextUrl;
+        const nextUrl = Array.isArray(nextUrls) ? nextUrls[0] : nextUrls;
+        const { method, url } = this.options.refreshData;
+        const { redirect, fetchUser } = this.options.loginData;
+        const promise = this.http({
+            method,
+            url,
+            headers: { ...{Authorization: this.storeManager.getRefreshToken()} },
         });
         promise.then(async (response: AxiosResponse) => {
             this.extractToken(response);
@@ -152,10 +184,10 @@ export default class AuthVueHttp {
 
     private configureHttp() {
         const token = this.storeManager.getRefreshToken();
+
         if (!!token) {
             this.startIntervals();
         }
-
         this.http.interceptors.request.use((request: AxiosRequestConfig) => {
             if (request.headers) {
                 Object.keys(request.headers)
@@ -220,11 +252,15 @@ export default class AuthVueHttp {
         const { accessName, refreshName } = this.options.tokenName;
         let accessToken = response.data[accessName]
         let refreshToken = response.data[refreshName]
-        if (!accessToken || !refreshToken) {
+        if (!accessToken && !refreshToken) {
             console.error('[vue-auth-plugin] No token is obtained');
         } else {
-            this.storeManager.setAccessToken(accessToken);
-            this.storeManager.setRefreshToken(refreshToken);
+            if (accessToken) {
+                this.storeManager.setAccessToken(accessToken);
+            }
+            if (refreshToken) {
+                this.storeManager.setRefreshToken(refreshToken);
+            }
         }
     }
 
