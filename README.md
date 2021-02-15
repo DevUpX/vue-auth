@@ -90,8 +90,6 @@ Standardize role methods in router meta.
 
 [MIT](http://opensource.org/licenses/MIT)
 
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fd0whc3r%2Fvue-auth-plugin.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fd0whc3r%2Fvue-auth-plugin?ref=badge_large)
-
 # :bookmark: Keywords
 
 `vue`, `auth`, `authorization`, `authentication`, `login`, `vuejs`, `vue2`, `typescript`
