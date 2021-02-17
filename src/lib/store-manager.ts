@@ -1,23 +1,23 @@
-import { VueConstructor } from 'vue';
-import { AuthUser, VueAuthStore } from '../interfaces';
-import { StoreLocalStorage, StoreSessionStorage, StoreVuex } from './store';
-import { IVueAuthOptions } from './auth';
+import { VueConstructor } from "vue";
+import { IAuthUser, VueAuthStore } from "../interfaces";
+import { StoreLocalStorage, StoreSessionStorage, StoreVuex } from "./store";
+import { IAuthOptions } from "./auth";
 
 export default class AuthStoreManager extends VueAuthStore {
     private sessionStore?: StoreSessionStorage;
     private localStore?: StoreLocalStorage;
     private vuexStore?: StoreVuex;
 
-    constructor(Vue: VueConstructor, options: IVueAuthOptions) {
+    constructor(Vue: VueConstructor, options: IAuthOptions) {
         super(Vue, options);
         this.setStores();
-        this.options.Vue.$watch('user', (value) => {
+        this.options.Vue.$watch("user", (value) => {
             this.setUser(value);
         });
-        this.options.Vue.$watch('accessToken', (value) => {
+        this.options.Vue.$watch("accessToken", (value) => {
             this.setAccessToken(value);
         });
-        this.options.Vue.$watch('refreshToken', (value) => {
+        this.options.Vue.$watch("refreshToken", (value) => {
             this.setRefreshToken(value);
         });
     }
@@ -38,27 +38,27 @@ export default class AuthStoreManager extends VueAuthStore {
         return token || this.options.Vue.$data.refresh_token;
     }
 
-    public getUser(): AuthUser {
-        const user = this.vuexStore?.getUser() || this.sessionStore?.getUser()
+    public getUser(): IAuthUser {
+        const user = this.vuexStore?.getUser() || this.sessionStore?.getUser();
         return user || this.options.Vue.$data.user;
     }
 
     public setAccessToken(token: string | null): void {
         this.options.Vue.$data.access_token = token;
-        this.vuexStore?.setAccessToken(token)
-        this.sessionStore?.setAccessToken(token)
+        this.vuexStore?.setAccessToken(token);
+        this.sessionStore?.setAccessToken(token);
     }
 
     public setRefreshToken(token: string | null): void {
         this.options.Vue.$data.refresh_token = token;
-        this.vuexStore?.setRefreshToken(token)
-        this.localStore?.setRefreshToken(token)
+        this.vuexStore?.setRefreshToken(token);
+        this.localStore?.setRefreshToken(token);
     }
 
-    public setUser(user: AuthUser | null): void {
+    public setUser(user: IAuthUser | null): void {
         this.options.Vue.$data.user = user;
-        this.vuexStore?.setUser(user)
-        this.sessionStore?.setUser(user)
+        this.vuexStore?.setUser(user);
+        this.sessionStore?.setUser(user);
     }
 
     public resetAll(): void {

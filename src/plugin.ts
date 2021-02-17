@@ -3,10 +3,10 @@
  *   This file is plugin stub for main.ts
  */
 
-import Vue from 'vue';
-import plugin, { VueAuthOptions } from './index';
+import Vue from "vue";
+import plugin, { IVueAuthOptions } from "./index";
 
-Vue.use<VueAuthOptions>(plugin);
+Vue.use<IVueAuthOptions>(plugin);
 
 /*
  * NOTE:

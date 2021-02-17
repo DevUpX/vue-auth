@@ -1,58 +1,58 @@
-import { AxiosResponse } from 'axios';
+import { AxiosResponse } from "axios";
 
-export type TokenType = 'Bearer' | 'Basic';
-export type Method = 'GET' | 'POST';
+export type TokenType = "Bearer" | "Basic";
+export type Method = "GET" | "POST";
 
-export interface BasicRedirectData {
+export interface IBasicRedirectData {
     url: string;
     method: Method;
 }
 
-export interface OptionalRedirectData {
+export interface IOptionalRedirectData {
     url?: string;
     method?: Method;
 }
 
-export interface BasicRedirectEnabledData extends OptionalRedirectData {
+export interface IBasicRedirectEnabledData extends IOptionalRedirectData {
     enabled?: boolean;
 }
 
-export interface RedirectData {
+export interface IRedirectData {
     redirect?: string;
 }
 
-export interface LoginRedirectData extends RedirectData, BasicRedirectData {
+export interface ILoginRedirectData extends IRedirectData, IBasicRedirectData {
     fetchUser?: boolean;
     fetchData?: (response: AxiosResponse) => any;
 }
 
-export interface RegisterRedirectData extends RedirectData, BasicRedirectData {
+export interface IRegisterRedirectData extends IRedirectData, IBasicRedirectData {
     fetchUser?: boolean;
     fetchData?: (response: AxiosResponse) => any;
 }
 
-export interface LogoutRedirectData extends RedirectData, OptionalRedirectData {
+export interface ILogoutRedirectData extends IRedirectData, IOptionalRedirectData {
     makeRequest?: boolean;
 }
 
-export interface FetchData extends BasicRedirectEnabledData {
+export interface IFetchData extends IBasicRedirectEnabledData {
     interval?: number;
 }
 
-export interface RefreshData extends FetchData {
+export interface IRefreshData extends IFetchData {
     interval?: number;
 }
 
-export interface AuthUser {
+export interface IAuthUser {
     [key: string]: any;
 }
 
-export interface TokenName {
+export interface ITokenName {
     accessName: string;
     refreshName: string;
 }
 
-export interface VueAuthOptions {
+export interface IVueAuthOptions {
     authMeta?: string;
     tokenDefaultName?: string;
     userDefaultName?: string;
@@ -60,13 +60,13 @@ export interface VueAuthOptions {
     tokenType?: TokenType;
     vuexStoreSpace?: string;
     fetchItem?: string;
-    tokenName: TokenName;
+    tokenName: ITokenName;
 
     authRedirect?: string;
 
-    loginData?: LoginRedirectData;
-    registerData?: RegisterRedirectData;
-    logoutData?: LogoutRedirectData;
-    fetchData?: FetchData;
-    refreshData?: RefreshData;
+    loginData?: ILoginRedirectData;
+    registerData?: IRegisterRedirectData;
+    logoutData?: ILogoutRedirectData;
+    fetchData?: IFetchData;
+    refreshData?: IRefreshData;
 }

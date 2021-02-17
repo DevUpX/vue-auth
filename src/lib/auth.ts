@@ -1,71 +1,71 @@
-import { VueAuthLogin, VueAuthOptions, VueAuthRegister } from '../interfaces';
-import AuthVueRouter from './router';
-import AuthStoreManager from './store-manager';
-import AuthVueHttp from './http';
-import { Vue } from 'vue/types/vue';
+import { IVueAuthLogin, IVueAuthOptions, IVueAuthRegister } from "../interfaces";
+import AuthVueRouter from "./router";
+import AuthStoreManager from "./store-manager";
+import AuthVueHttp from "./http";
+import { Vue } from "vue/types/vue";
 
-export interface IVueAuthOptions extends VueAuthOptions {
+export interface IAuthOptions extends IVueAuthOptions {
     Vue: Vue;
 }
 
-export const DEFAULT_OPTIONS: VueAuthOptions = {
-    authMeta: 'auth',
-    tokenDefaultName: 'default_auth_token',
-    userDefaultName: 'default_auth_user',
-    headerTokenReplace: '{auth_token}',
-    tokenType: 'Bearer',
-    vuexStoreSpace: 'vue-auth',
-    tokenName: {
-        accessName: 'access_token',
-        refreshName: 'refresh_token'
+export const DEFAULT_OPTIONS: IVueAuthOptions = {
+    authMeta: "auth",
+    authRedirect: "/login",
+    fetchData: {
+        interval: 30,
+        method: "GET",
+        url: "/auth/user",
     },
-    authRedirect: '/login',
+    fetchItem: "",
+    headerTokenReplace: "{auth_token}",
     loginData: {
-        url: '/auth/login',
-        method: 'POST',
-        redirect: '/',
         fetchUser: false,
-    },
-    registerData: {
-        url: '/auth/register',
-        method: 'POST',
-        redirect: '/',
-        fetchUser: false,
+        method: "POST",
+        redirect: "/",
+        url: "/auth/login",
     },
     logoutData: {
-        url: '/auth/logout',
-        method: 'POST',
-        redirect: '/login',
         makeRequest: false,
-    },
-    fetchItem: '',
-    fetchData: {
-        url: '/auth/user',
-        method: 'GET',
-        interval: 30
+        method: "POST",
+        redirect: "/login",
+        url: "/auth/logout",
     },
     refreshData: {
-        url: '/auth/refresh',
-        method: 'GET',
-        interval: 30,
         enabled: false,
-    }
+        interval: 30,
+        method: "GET",
+        url: "/auth/refresh",
+    },
+    registerData: {
+        fetchUser: false,
+        method: "POST",
+        redirect: "/",
+        url: "/auth/register",
+    },
+    tokenDefaultName: "default_auth_token",
+    tokenName: {
+        accessName: "access_token",
+        refreshName: "refresh_token",
+    },
+    tokenType: "Bearer",
+    userDefaultName: "default_auth_user",
+    vuexStoreSpace: "vue-auth",
 };
 
 export default class Auth {
-    private readonly options = {} as IVueAuthOptions;
+    private readonly options = {} as IAuthOptions;
     private readonly http: AuthVueHttp;
     private readonly storeManager: AuthStoreManager;
 
-    constructor(private readonly VueInstance: any, options: VueAuthOptions = {} as VueAuthOptions) {
+    constructor(private readonly VueInstance: any, options: IVueAuthOptions = {} as IVueAuthOptions) {
         this.options = {
             ...DEFAULT_OPTIONS,
             ...options,
             Vue: new this.VueInstance({
                 data() {
                     return {
-                        user: null,
                         token: null,
+                        user: null,
                     };
                 },
             }),
@@ -75,11 +75,11 @@ export default class Auth {
         this.http = new AuthVueHttp(this.VueInstance, this.options, this.storeManager, router);
     }
 
-    public login(loginInfo: VueAuthLogin) {
+    public login(loginInfo: IVueAuthLogin) {
         return this.http.login(loginInfo);
     }
 
-    public register(registerData: VueAuthRegister) {
+    public register(registerData: IVueAuthRegister) {
         return this.http.register(registerData);
     }
 

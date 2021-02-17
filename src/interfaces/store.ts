@@ -1,9 +1,9 @@
-import { AuthUser } from './options';
-import { IVueAuthOptions } from '../lib/auth';
+import { IAuthUser } from "./options";
+import { IAuthOptions } from "../lib/auth";
 
 interface IVueAuthStore {
-    getUser(): AuthUser;
-    setUser(user: AuthUser): void;
+    getUser(): IAuthUser;
+    setUser(user: IAuthUser): void;
     getAccessToken(): string;
     setAccessToken(token: string): void;
     getRefreshToken(): string;
@@ -12,12 +12,12 @@ interface IVueAuthStore {
 
 export abstract class VueAuthStore implements IVueAuthStore {
     protected store: any;
-    protected constructor(protected Vue: any, protected options: IVueAuthOptions) {
+    protected constructor(protected Vue: any, protected options: IAuthOptions) {
     }
 
-    public abstract getUser(): AuthUser;
+    public abstract getUser(): IAuthUser;
 
-    public abstract setUser(user: AuthUser): void;
+    public abstract setUser(user: IAuthUser): void;
 
     public abstract getAccessToken(): string;
 

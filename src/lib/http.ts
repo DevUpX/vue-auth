@@ -1,8 +1,8 @@
-import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
-import {VueAuthLogin, VueAuthRegister} from '../interfaces';
-import AuthStoreManager from './store-manager';
-import AuthVueRouter from './router';
-import {IVueAuthOptions} from './auth';
+import {AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
+import {IVueAuthLogin, IVueAuthRegister} from "../interfaces";
+import AuthStoreManager from "./store-manager";
+import AuthVueRouter from "./router";
+import {IAuthOptions} from "./auth";
 
 export default class AuthVueHttp {
     private readonly http: AxiosInstance;
@@ -12,29 +12,28 @@ export default class AuthVueHttp {
 
     constructor(
         private readonly Vue: any,
-        private readonly options: IVueAuthOptions,
+        private readonly options: IAuthOptions,
         private readonly storeManager: AuthStoreManager,
         private readonly router: AuthVueRouter) {
         if (!this.Vue.axios) {
-            throw Error('[vue-auth] vue-axios is a required dependency');
+            throw Error("[vue-auth] vue-axios is a required dependency");
         }
         this.http = Vue.axios as AxiosInstance;
         this.configureHttp();
         this.loginWithToken();
     }
 
-    public login(loginInfo: VueAuthLogin) {
+    public login(loginInfo: IVueAuthLogin) {
         if (!this.options.loginData) {
-            console.warn('[vue-auth] Login not configured, use "loginData" option');
             return Promise.reject(false);
         }
         const nextUrls = this.router.router.currentRoute.query.nextUrl;
         const nextUrl = Array.isArray(nextUrls) ? nextUrls[0] : nextUrls;
         const { method, url, redirect, fetchUser } = this.options.loginData;
         const promise = this.http({
+            data: loginInfo,
             method,
             url,
-            data: loginInfo,
         });
         promise.then(async (response: AxiosResponse) => {
             this.extractToken(response);
@@ -44,28 +43,23 @@ export default class AuthVueHttp {
             }
             await this.router.afterLogin(redirect || nextUrl);
             return response;
-        }).catch((error: any) => {
-            console.warn('[vue-auth] Login error', error.message);
         });
         return promise;
     }
 
     public loginWithToken() {
         if (!this.options.refreshData || !this.options.loginData) {
-            console.warn('[vue-auth] Login not configured, use "loginData" and "refreshData" option');
             return Promise.reject(false);
         }
         if (!this.storeManager.getRefreshToken()) {
             return;
         }
-        const nextUrls = this.router.router.currentRoute.query.nextUrl;
-        const nextUrl = Array.isArray(nextUrls) ? nextUrls[0] : nextUrls;
         const { method, url } = this.options.refreshData;
         const { redirect, fetchUser } = this.options.loginData;
         const promise = this.http({
+            headers: { ...{Authorization: this.storeManager.getRefreshToken()} },
             method,
             url,
-            headers: { ...{Authorization: this.storeManager.getRefreshToken()} },
         });
         promise.then(async (response: AxiosResponse) => {
             this.extractToken(response);
@@ -73,26 +67,27 @@ export default class AuthVueHttp {
             if (fetchUser) {
                 await this.fetchData();
             }
-            await this.router.afterLogin(redirect || nextUrl);
+            const nextUrls = this.router.router.currentRoute.query.nextUrl;
+            const nextUrl = Array.isArray(nextUrls) ? nextUrls[0] : nextUrls;
+            if (nextUrl) {
+                await this.router.afterLogin(redirect || nextUrl);
+            }
             return response;
-        }).catch((error: any) => {
-            console.warn('[vue-auth] Login error', error.message);
         });
         return promise;
     }
 
-    public register(registerInfo: VueAuthRegister) {
+    public register(registerInfo: IVueAuthRegister) {
         if (!this.options.registerData) {
-            console.warn('[vue-auth] Register not configured, use "registerData" option');
             return Promise.reject(false);
         }
         const nextUrls = this.router.router.currentRoute.query.nextUrl;
         const nextUrl = Array.isArray(nextUrls) ? nextUrls[0] : nextUrls;
         const { method, url, redirect, fetchUser } = this.options.registerData;
         const promise = this.http({
+            data: registerInfo,
             method,
             url,
-            data: registerInfo,
         });
         promise.then(async (response: AxiosResponse) => {
             this.extractToken(response);
@@ -102,27 +97,24 @@ export default class AuthVueHttp {
             }
             await this.router.afterLogin(redirect || nextUrl);
             return response;
-        })
-        .catch((error: any) => {
-            console.warn('[vue-auth] Register error', error.message);
         });
         return promise;
     }
 
     public logout(forceRedirect = false) {
-        const logout = this.options.logoutData && typeof this.options.logoutData === 'object' &&
+        const logout = this.options.logoutData && typeof this.options.logoutData === "object" &&
         Object.keys(this.options.logoutData).length ? this.options.logoutData : {};
         const { url, method, redirect, makeRequest } = logout;
         if (makeRequest) {
             this.http({
+                headers: { ...this.getAuthHeader() },
                 method,
                 url,
-                headers: { ...this.getAuthHeader() },
             })
                 .finally(() => {
                     this.storeManager.resetAll();
                     if (redirect || forceRedirect) {
-                        this.router.push(redirect || '/');
+                        this.router.push(redirect || "/");
                     }
                 });
         }
@@ -131,28 +123,25 @@ export default class AuthVueHttp {
         }
         this.storeManager.resetAll();
         if (redirect || forceRedirect) {
-            this.router.push(redirect || '/');
+            this.router.push(redirect || "/");
         }
     }
 
     public fetchData() {
-        const fetch = this.options.fetchData && typeof this.options.fetchData === 'object' &&
+        const fetch = this.options.fetchData && typeof this.options.fetchData === "object" &&
         Object.keys(this.options.fetchData).length ? this.options.fetchData : {};
         const { method, url } = fetch;
         if (url && method && this.storeManager.getAccessToken()) {
             const promise = this.http({
+                headers: { ...this.getAuthHeader() },
                 method,
                 url,
-                headers: { ...this.getAuthHeader() },
             });
             promise
                 .then(({ data }: AxiosResponse) => {
                     const { fetchItem } = this.options;
                     this.storeManager.setUser(fetchItem ? data[fetchItem] : data);
                     return data;
-                })
-                .catch((error: Error) => {
-                    console.warn('[vue-auth-plugin] Fetching user error', error.message);
                 });
             return promise;
         }
@@ -160,22 +149,19 @@ export default class AuthVueHttp {
     }
 
     public refresh(force = false) {
-        const refresh = this.options.refreshData && typeof this.options.refreshData === 'object' &&
+        const refresh = this.options.refreshData && typeof this.options.refreshData === "object" &&
         Object.keys(this.options.refreshData).length ? this.options.refreshData : {};
         const { enabled, method, url } = refresh;
         if ((enabled || force) && url && method && this.storeManager.getRefreshToken()) {
             const promise = this.http({
+                headers: { ...this.getAuthHeader() },
                 method,
                 url,
-                headers: { ...this.getAuthHeader() },
             });
             promise
                 .then(async (response: AxiosResponse) => {
                     this.extractToken(response);
                     return response;
-                })
-                .catch((error: Error) => {
-                    console.warn('[vue-auth-plugin] Refresh error', error.message);
                 });
             return promise;
         }
@@ -194,10 +180,13 @@ export default class AuthVueHttp {
                     .forEach((head) => {
                         const value: string = request.headers[head];
                         if (value
-                            && typeof value === 'string'
+                            && typeof value === "string"
                             && this.options.headerTokenReplace
                             && value.includes(this.options.headerTokenReplace)) {
-                            request.headers[head] = value.replace(this.options.headerTokenReplace, this.storeManager.getAccessToken());
+                            request.headers[head] = value.replace(
+                                this.options.headerTokenReplace,
+                                this.storeManager.getAccessToken(),
+                            );
                         }
                     });
             }
@@ -250,10 +239,10 @@ export default class AuthVueHttp {
             return;
         }
         const { accessName, refreshName } = this.options.tokenName;
-        let accessToken = response.data[accessName]
-        let refreshToken = response.data[refreshName]
+        const accessToken = response.data[accessName];
+        const refreshToken = response.data[refreshName];
         if (!accessToken && !refreshToken) {
-            console.error('[vue-auth-plugin] No token is obtained');
+            return;
         } else {
             if (accessToken) {
                 this.storeManager.setAccessToken(accessToken);
@@ -270,7 +259,6 @@ export default class AuthVueHttp {
             const token = `${tokenType} ${headerTokenReplace}`;
             return { Authorization: token };
         }
-        console.error('[vue-auth-plugin] No "loginData" is defined');
         return {};
     }
 }

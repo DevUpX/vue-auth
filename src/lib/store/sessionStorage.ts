@@ -1,9 +1,9 @@
-import { VueConstructor } from 'vue';
-import {AuthUser, VueAuthSessionStorage} from '../../interfaces';
-import { IVueAuthOptions } from '../auth';
+import { VueConstructor } from "vue";
+import {IAuthUser, VueAuthSessionStorage} from "../../interfaces";
+import { IAuthOptions } from "../auth";
 
 export default class StoreSessionStorage extends VueAuthSessionStorage {
-    constructor(Vue: VueConstructor, options: IVueAuthOptions) {
+    constructor(Vue: VueConstructor, options: IAuthOptions) {
         super(Vue, options);
         this.store = window.sessionStorage;
         this.initVue();
@@ -21,11 +21,11 @@ export default class StoreSessionStorage extends VueAuthSessionStorage {
         }
     }
 
-    public getUser(): AuthUser {
+    public getUser(): IAuthUser {
         return JSON.parse(this.store.getItem(this.options.userDefaultName));
     }
 
-    public setUser(user: AuthUser | null): void {
+    public setUser(user: IAuthUser | null): void {
         if (user && Object.keys(user)) {
             this.store.setItem(this.options.userDefaultName as string, JSON.stringify(user));
         } else {

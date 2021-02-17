@@ -1,6 +1,6 @@
-import { PluginObject, VueConstructor } from 'vue';
-import { VueAuthOptions } from './interfaces';
-import Auth from './lib/auth';
+import { PluginObject, VueConstructor } from "vue";
+import { IVueAuthOptions } from "./interfaces";
+import Auth from "./lib/auth";
 
 declare global {
   interface Window {
@@ -8,9 +8,9 @@ declare global {
   }
 }
 
-const version = '__VERSION__';
+const version = "__VERSION__";
 
-const install = (Vue: any, options: VueAuthOptions = {} as VueAuthOptions): void => {
+const install = (Vue: any, options: IVueAuthOptions = {} as IVueAuthOptions): void => {
   if (plugin.installed) {
     return;
   }
@@ -26,14 +26,14 @@ const install = (Vue: any, options: VueAuthOptions = {} as VueAuthOptions): void
   });
 };
 
-const plugin: PluginObject<VueAuthOptions> = {
+const plugin: PluginObject<IVueAuthOptions> = {
   install,
   version,
 };
 export default plugin;
-export * from './interfaces';
-export { DEFAULT_OPTIONS } from './lib/auth';
+export * from "./interfaces";
+export { DEFAULT_OPTIONS } from "./lib/auth";
 
-if (typeof window !== 'undefined' && window.Vue) {
+if (typeof window !== "undefined" && window.Vue) {
   window.Vue.use(plugin, {});
 }

@@ -1,9 +1,9 @@
-import { VueConstructor } from 'vue';
-import { VueAuthLocalStorage } from '../../interfaces';
-import { IVueAuthOptions } from '../auth';
+import { VueConstructor } from "vue";
+import { VueAuthLocalStorage } from "../../interfaces";
+import { IAuthOptions } from "../auth";
 
 export default class StoreLocalStorage extends VueAuthLocalStorage {
-    constructor(Vue: VueConstructor, options: IVueAuthOptions) {
+    constructor(Vue: VueConstructor, options: IAuthOptions) {
         super(Vue, options);
         this.store = window.localStorage;
         this.initVue();

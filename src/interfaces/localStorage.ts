@@ -1,4 +1,4 @@
-import { IVueAuthOptions } from '../lib/auth';
+import { IAuthOptions } from "../lib/auth";
 
 interface IVueAuthLocalStorage {
     getRefreshToken(): string;
@@ -8,7 +8,7 @@ interface IVueAuthLocalStorage {
 export abstract class VueAuthLocalStorage implements IVueAuthLocalStorage {
     protected store: any;
 
-    protected constructor(protected Vue: any, protected options: IVueAuthOptions) {
+    protected constructor(protected Vue: any, protected options: IAuthOptions) {
     }
 
     public abstract getRefreshToken(): string;

@@ -1,16 +1,16 @@
-import { RawLocation, Route, RouteRecord, VueRouter } from 'vue-router/types/router';
-import AuthStoreManager from './store-manager';
-import { IVueAuthOptions } from './auth';
+import AuthStoreManager from "./store-manager";
+import { RawLocation, Route, RouteRecord, VueRouter } from "vue-router/types/router";
+import { IAuthOptions } from "./auth";
 
 export default class AuthVueRouter {
     public readonly router: VueRouter;
 
     constructor(
         private readonly Vue: any,
-        private readonly options: IVueAuthOptions,
+        private readonly options: IAuthOptions,
         private readonly storeManager: AuthStoreManager) {
         if (!this.Vue.router) {
-            throw Error('[vue-auth-plugin] vue-router is a required dependency');
+            throw Error("[vue-auth-plugin] vue-router is a required dependency");
         }
         this.router = Vue.router as VueRouter;
         this.configureRouter();
@@ -28,15 +28,15 @@ export default class AuthVueRouter {
             promise = this.router.push(redirect);
         } else if (this.router.currentRoute.query.nextUrl) {
             const nextUrl = this.router.currentRoute.query.nextUrl;
-            if (typeof nextUrl === 'string') {
+            if (typeof nextUrl === "string") {
                 promise = this.router.push(nextUrl);
             }
         } else {
-            promise = this.router.push('/');
+            promise = this.router.push("/");
         }
         if (promise) {
             promise.catch(async () => {
-                const result = redirect || '/';
+                const result = redirect || "/";
                 await this.router.push(result);
             });
         }
@@ -51,11 +51,12 @@ export default class AuthVueRouter {
                 if (this.isAuthorized(routes)) {
                     next();
                 } else {
-                    const redirectPath: RawLocation = { path: authRedirect || '/' };
+                    const redirectPath: RawLocation = { path: authRedirect || "/" };
                     if (loginData && !loginData.redirect) {
                         redirectPath.query = { nextUrl: to.fullPath };
                     }
-                    const nextPath = from.fullPath !== to.fullPath && this.storeManager.check() ? from.fullPath : redirectPath;
+                    const nextPath =
+                        from.fullPath !== to.fullPath && this.storeManager.check() ? from.fullPath : redirectPath;
                     next(nextPath);
                 }
             } else {
@@ -69,9 +70,9 @@ export default class AuthVueRouter {
         let isAuth = false;
         routes.forEach((route) => {
             const auth = this.options.authMeta && route.meta[this.options.authMeta];
-            if (typeof auth === 'boolean') {
+            if (typeof auth === "boolean") {
                 isAuth = !!token;
-            } else if (typeof auth === 'string' || Array.isArray(auth)) {
+            } else if (typeof auth === "string" || Array.isArray(auth)) {
                 isAuth = this.storeManager.check();
             }
         });
