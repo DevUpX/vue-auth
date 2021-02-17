@@ -99,6 +99,14 @@ export default class Auth {
         return this.storeManager.getAccessToken();
     }
 
+    public authorization() {
+        return {
+            headers: {
+                Authorization: 'Bearer ' + this.accessToken()
+            }
+        }
+    }
+
     public refreshToken() {
         return this.storeManager.getRefreshToken();
     }
