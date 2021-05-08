@@ -57,7 +57,7 @@ export default class AuthVueHttp {
         const { method, url } = this.options.refreshData;
         const { redirect, fetchUser } = this.options.loginData;
         const promise = this.http({
-            headers: { ...{Authorization: this.storeManager.getRefreshToken()} },
+            headers: {Authorization: `${this.options.tokenType} ${this.storeManager.getRefreshToken()}`},
             method,
             url,
         });
@@ -107,7 +107,7 @@ export default class AuthVueHttp {
         const { url, method, redirect, makeRequest } = logout;
         if (makeRequest) {
             this.http({
-                headers: { ...this.getAuthHeader() },
+                headers: {Authorization: `${this.options.tokenType} ${this.storeManager.getAccessToken()}`},
                 method,
                 url,
             })
@@ -130,10 +130,13 @@ export default class AuthVueHttp {
     public fetchData() {
         const fetch = this.options.fetchData && typeof this.options.fetchData === "object" &&
         Object.keys(this.options.fetchData).length ? this.options.fetchData : {};
+        const logout = this.options.logoutData && typeof this.options.logoutData === "object" &&
+        Object.keys(this.options.logoutData).length ? this.options.logoutData : {};
+        const { redirect } = logout;
         const { method, url } = fetch;
         if (url && method && this.storeManager.getAccessToken()) {
             const promise = this.http({
-                headers: { ...this.getAuthHeader() },
+                headers: {Authorization: `${this.options.tokenType} ${this.storeManager.getAccessToken()}`},
                 method,
                 url,
             });
@@ -142,6 +145,12 @@ export default class AuthVueHttp {
                     const { fetchItem } = this.options;
                     this.storeManager.setUser(fetchItem ? data[fetchItem] : data);
                     return data;
+                }).catch(() => {
+                    if (this.intervalFetchData) {
+                        clearInterval(this.intervalFetchData);
+                    }
+                    this.storeManager.resetAll();
+                    this.router.push(redirect || "/");
                 });
             return promise;
         }
@@ -154,7 +163,7 @@ export default class AuthVueHttp {
         const { enabled, method, url } = refresh;
         if ((enabled || force) && url && method && this.storeManager.getRefreshToken()) {
             const promise = this.http({
-                headers: { ...this.getAuthHeader() },
+                headers: {Authorization: `${this.options.tokenType} ${this.storeManager.getRefreshToken()}`},
                 method,
                 url,
             });
@@ -170,30 +179,9 @@ export default class AuthVueHttp {
 
     private configureHttp() {
         const token = this.storeManager.getRefreshToken();
-
         if (!!token) {
             this.startIntervals();
         }
-        this.http.interceptors.request.use((request: AxiosRequestConfig) => {
-            if (request.headers) {
-                Object.keys(request.headers)
-                    .forEach((head) => {
-                        const value: string = request.headers[head];
-                        if (value
-                            && typeof value === "string"
-                            && this.options.headerTokenReplace
-                            && value.includes(this.options.headerTokenReplace)) {
-                            request.headers[head] = value.replace(
-                                this.options.headerTokenReplace,
-                                this.storeManager.getAccessToken(),
-                            );
-                        }
-                    });
-            }
-            return request;
-        }, (error: any) => {
-            return Promise.reject(error);
-        });
         this.http.interceptors.response.use((response: AxiosResponse) => {
             return response;
         }, (error: any) => {
@@ -251,14 +239,5 @@ export default class AuthVueHttp {
                 this.storeManager.setRefreshToken(refreshToken);
             }
         }
-    }
-
-    private getAuthHeader() {
-        if (this.options.loginData) {
-            const { tokenType, headerTokenReplace } = this.options;
-            const token = `${tokenType} ${headerTokenReplace}`;
-            return { Authorization: token };
-        }
-        return {};
     }
 }
